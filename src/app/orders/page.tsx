@@ -26,9 +26,12 @@ export default function OrdersPage() {
       return;
     }
     fetch('/api/orders')
-      .then((res) => res.json())
-      .then((data) => setOrders(data || []))
-      .catch(() => {})
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch orders');
+        return res.json();
+      })
+      .then((data) => setOrders(Array.isArray(data) ? data : []))
+      .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, [session]);
 

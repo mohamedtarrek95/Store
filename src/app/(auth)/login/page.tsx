@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { motion } from 'framer-motion';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 import { loginSchema } from '@/lib/validations';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,7 +44,7 @@ export default function LoginPage() {
 
       if (res?.ok) {
         toast.success('Welcome back!');
-        router.push('/');
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {
@@ -135,5 +137,22 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md animate-pulse space-y-4">
+          <div className="mx-auto h-8 w-32 rounded bg-muted" />
+          <div className="h-12 w-full rounded-xl bg-muted" />
+          <div className="h-12 w-full rounded-xl bg-muted" />
+          <div className="h-12 w-full rounded-xl bg-muted" />
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

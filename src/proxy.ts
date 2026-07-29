@@ -7,7 +7,7 @@ export async function proxy(req: NextRequest) {
 
   if (pathname.startsWith('/admin')) {
     const token = await getToken({ req });
-    
+
     if (!token) {
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
