@@ -32,13 +32,15 @@ const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error('Invalid email or password');
           }
 
-          return {
+          const result = {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
             image: user.image,
             isAdmin: user.isAdmin,
           };
+          console.log('[AUTH] authorize returning:', { ...result, password: '[REDACTED]' });
+          return result;
         } catch (error) {
           console.error('Auth authorize error:', error);
           throw error;
@@ -52,6 +54,7 @@ const { handlers, auth, signIn, signOut } = NextAuth({
         token.isAdmin = (user as any).isAdmin;
         token.id = user.id;
       }
+      console.log('[AUTH] jwt callback token:', { ...token, isAdmin: token.isAdmin });
       return token;
     },
     async session({ session, token }) {
@@ -60,6 +63,7 @@ const { handlers, auth, signIn, signOut } = NextAuth({
           (session.user as any).isAdmin = token.isAdmin;
           (session.user as any).id = token.id;
         }
+        console.log('[AUTH] session callback session:', { ...session, user: { ...session.user, isAdmin: (session.user as any)?.isAdmin, id: (session.user as any)?.id } });
         return session;
       } catch (error) {
         console.error('Session callback error:', error);

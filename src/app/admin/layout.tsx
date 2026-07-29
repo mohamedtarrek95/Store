@@ -9,12 +9,19 @@ export const metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
+  console.log('[ADMIN LAYOUT] auth() returned:', !!session);
+  if (session?.user) {
+    console.log('[ADMIN LAYOUT] session.user.isAdmin:', (session.user as any).isAdmin);
+    console.log('[ADMIN LAYOUT] session.user.email:', session.user.email);
+  }
 
   if (!session?.user) {
+    console.log('[ADMIN LAYOUT] no session, redirecting to /login');
     redirect('/login');
   }
 
   if (!(session.user as any).isAdmin) {
+    console.log('[ADMIN LAYOUT] user is not admin, showing 403');
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">

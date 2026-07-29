@@ -35,17 +35,22 @@ function LoginForm() {
 
     setLoading(true);
     try {
+      console.log('[LOGIN] signIn starting, callbackUrl:', callbackUrl);
       const res = await signIn('credentials', { email, password, redirect: false });
+      console.log('[LOGIN] signIn result:', JSON.stringify(res));
 
       if (res?.error) {
+        console.log('[LOGIN] signIn error:', res.error);
         toast.error(res.error === 'CredentialsSignin' ? 'Invalid email or password' : res.error);
         return;
       }
 
       if (res?.ok) {
+        console.log('[LOGIN] signIn ok, pushing to:', callbackUrl);
         toast.success('Welcome back!');
         router.push(callbackUrl);
-        router.refresh();
+      } else {
+        console.log('[LOGIN] signIn returned but not ok:', res);
       }
     } catch {
       toast.error('Something went wrong. Please try again.');
