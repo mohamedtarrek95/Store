@@ -51,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     try {
       const res = await fetch('/api/wishlist', {
-        method: isWishlisted ? 'DELETE' : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId: product._id }),
       });

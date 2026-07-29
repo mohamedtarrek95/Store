@@ -43,7 +43,7 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product: productId, rating, title, comment }),
+        body: JSON.stringify({ productId, rating, title, comment }),
       });
 
       if (!res.ok) {

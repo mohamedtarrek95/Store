@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
     const bestSeller = searchParams.get('bestSeller');
     const newArrival = searchParams.get('newArrival');
     const ids = searchParams.get('ids');
+    const color = searchParams.get('color');
+    const size = searchParams.get('size');
 
     const query: any = {};
 
@@ -41,12 +43,22 @@ export async function GET(req: NextRequest) {
     if (ids) {
       query._id = { $in: ids.split(',') };
     }
+    if (color) {
+      query.colors = { $in: [color] };
+    }
+    if (size) {
+      query.sizes = { $in: [size] };
+    }
 
     let sortQuery: any = { createdAt: -1 };
     if (sort === 'price_asc') sortQuery = { price: 1 };
     else if (sort === 'price_desc') sortQuery = { price: -1 };
     else if (sort === 'rating') sortQuery = { rating: -1 };
-    else if (sort === 'newest') sortQuery = { createdAt: -1 };
+    else if (sort === 'newest' || sort === 'createdAt') sortQuery = { createdAt: -1 };
+    else if (sort === 'name_asc') sortQuery = { name: 1 };
+    else if (sort === 'name_desc') sortQuery = { name: -1 };
+    else if (sort === 'stock_asc') sortQuery = { stock: 1 };
+    else if (sort === 'stock_desc') sortQuery = { stock: -1 };
 
     const total = await Product.countDocuments(query);
     const products = await Product.find(query)

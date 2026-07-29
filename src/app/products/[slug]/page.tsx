@@ -25,11 +25,11 @@ export default function ProductDetailPage() {
         const res = await fetch(`/api/products/${slug}`);
         if (!res.ok) throw new Error('Product not found');
         const data = await res.json();
-        setProduct(data.product);
+        setProduct(data);
 
-        if (data.product.category) {
-          const catSlug = typeof data.product.category === 'string' ? data.product.category : data.product.category.slug;
-          const similarRes = await fetch(`/api/products?category=${catSlug}&limit=4&exclude=${data.product._id}`);
+        if (data.category) {
+          const catSlug = typeof data.category === 'string' ? data.category : data.category.slug;
+          const similarRes = await fetch(`/api/products?category=${catSlug}&limit=4`);
           const similarData = await similarRes.json();
           setSimilarProducts(similarData.products || []);
         }

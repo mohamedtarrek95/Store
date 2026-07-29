@@ -7,7 +7,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     await dbConnect();
     const { id } = await params;
-    const product = await Product.findById(id).populate('category', 'name slug');
+    const product = await Product.findOne({ slug: id }).populate('category', 'name slug')
+      || await Product.findById(id).populate('category', 'name slug');
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }

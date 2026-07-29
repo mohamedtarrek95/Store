@@ -35,7 +35,7 @@ export default function CategoryShowcase() {
       try {
         const res = await fetch('/api/categories');
         const data = await res.json();
-        setCategories(data.categories || []);
+        setCategories(data || []);
       } catch (err) {
         console.error('Failed to fetch categories:', err);
       } finally {

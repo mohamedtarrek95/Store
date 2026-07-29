@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProductType } from '@/types';
 import { useCart } from '@/providers/CartProvider';
 import { useSession } from 'next-auth/react';
@@ -14,6 +15,7 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
+  const router = useRouter();
   const { addItem } = useCart();
   const { data: session } = useSession();
   const [selectedColor, setSelectedColor] = useState(product.colors?.[0] || '');
@@ -23,7 +25,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [adding, setAdding] = useState(false);
 
   const discount = getDiscountPercentage(product.price, product.discountPrice);
-  const effectivePrice = product.discountPrice || product.price;
 
   const handleAddToCart = async () => {
     if (product.stock <= 0) return;
@@ -50,7 +51,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     }
     try {
       const res = await fetch('/api/wishlist', {
-        method: isWishlisted ? 'DELETE' : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId: product._id }),
       });
@@ -61,6 +62,27 @@ export function ProductInfo({ product }: ProductInfoProps) {
     } catch {
       toast.error('Something went wrong');
     }
+  };
+
+  const handleBuyNow = () => {
+    if (product.stock <= 0) return;
+    if (!session) {
+      toast.error('Please sign in to purchase');
+      router.push('/login');
+      return;
+    }
+    addItem({
+      productId: product._id,
+      name: product.name,
+      image: product.featuredImage || product.images[0],
+      price: product.price,
+      discountPrice: product.discountPrice,
+      quantity,
+      color: selectedColor,
+      size: selectedSize,
+      stock: product.stock,
+    });
+    router.push('/checkout');
   };
 
   return (
@@ -222,6 +244,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           </button>
         </div>
         <button
+          onClick={handleBuyNow}
           disabled={product.stock <= 0}
           className="w-full rounded-xl border border-foreground/20 py-4 text-base font-medium transition-all duration-200 hover:bg-accent disabled:opacity-50"
         >

@@ -27,7 +27,7 @@ export default function OrdersPage() {
     }
     fetch('/api/orders')
       .then((res) => res.json())
-      .then((data) => setOrders(data.orders || []))
+      .then((data) => setOrders(data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [session]);

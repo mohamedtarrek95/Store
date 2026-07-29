@@ -14,9 +14,9 @@ export function ReviewList({ productId }: ReviewListProps) {
   const [sort, setSort] = useState('newest');
 
   useEffect(() => {
-    fetch(`/api/reviews?product=${productId}&sort=${sort}`)
+    fetch(`/api/reviews?productId=${productId}&sort=${sort}`)
       .then((res) => res.json())
-      .then((data) => setReviews(data.reviews || []))
+      .then((data) => setReviews(data || []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [productId, sort]);

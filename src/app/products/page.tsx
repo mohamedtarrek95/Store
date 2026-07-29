@@ -181,8 +181,8 @@ function ProductsContent() {
               className="h-9 rounded-xl border border-input bg-background px-3 text-sm outline-none"
             >
               <option value="newest">Newest</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
               <option value="rating">Highest Rated</option>
             </select>
           </div>

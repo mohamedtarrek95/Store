@@ -66,7 +66,7 @@ export function SearchBar({ onClose }: SearchBarProps) {
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="h-13 w-full rounded-2xl border border-input bg-background pl-11 pr-11 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
+          className="h-12 w-full rounded-2xl border border-input bg-background pl-11 pr-11 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
         />
         {query && (
           <button

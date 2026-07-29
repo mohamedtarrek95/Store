@@ -32,10 +32,10 @@ const sizes = ['Small', 'Medium', 'Large'];
 
 const sortOptions = [
   { value: 'newest', label: 'Newest' },
-  { value: 'price-asc', label: 'Price: Low to High' },
-  { value: 'price-desc', label: 'Price: High to Low' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
   { value: 'rating', label: 'Highest Rated' },
-  { value: 'name-asc', label: 'Name: A-Z' },
+  { value: 'name_asc', label: 'Name: A-Z' },
 ];
 
 export function ProductFilters({ filters, onFilterChange, onClose }: ProductFiltersProps) {
@@ -46,7 +46,7 @@ export function ProductFilters({ filters, onFilterChange, onClose }: ProductFilt
   useEffect(() => {
     fetch('/api/categories')
       .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []))
+      .then((data) => setCategories(data || []))
       .catch(() => {});
   }, []);
 

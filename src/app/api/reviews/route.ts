@@ -10,12 +10,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const productId = searchParams.get('productId');
 
+    const sortParam = searchParams.get('sort');
     const query: any = {};
     if (productId) query.product = productId;
 
+    let sortQuery: any = { createdAt: -1 };
+    if (sortParam === 'oldest') sortQuery = { createdAt: 1 };
+    else if (sortParam === 'highest') sortQuery = { rating: -1 };
+    else if (sortParam === 'lowest') sortQuery = { rating: 1 };
+
     const reviews = await Review.find(query)
       .populate('user', 'name image')
-      .sort({ createdAt: -1 });
+      .sort(sortQuery);
 
     return NextResponse.json(reviews);
   } catch (error) {

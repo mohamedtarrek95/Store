@@ -37,7 +37,13 @@ export default function AdminProductsPage() {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(page), limit: '10', sort: sortKey, dir: sortDir });
+      const sortMap: Record<string, string> = {
+        name: `name_${sortDir}`,
+        price: `price_${sortDir}`,
+        stock: `stock_${sortDir}`,
+        createdAt: 'createdAt',
+      };
+      const params = new URLSearchParams({ page: String(page), limit: '10', sort: sortMap[sortKey] || 'createdAt' });
       if (search) params.set('search', search);
       const res = await fetch(`/api/products?${params}`);
       const data = await res.json();
@@ -57,7 +63,6 @@ export default function AdminProductsPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchProducts();
   };
 
   const toggleSort = (key: SortKey) => {

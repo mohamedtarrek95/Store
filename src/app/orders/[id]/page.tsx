@@ -33,7 +33,7 @@ export default function OrderDetailPage() {
         if (!res.ok) throw new Error('Order not found');
         return res.json();
       })
-      .then((data) => setOrder(data.order))
+      .then((data) => setOrder(data))
       .catch(() => router.push('/orders'))
       .finally(() => setLoading(false));
   }, [id, session, router]);

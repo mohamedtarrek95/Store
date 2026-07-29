@@ -67,13 +67,13 @@ export default function Newsletter() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-13 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
+                    className="h-12 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group inline-flex h-13 items-center gap-2 rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all duration-300 hover:opacity-90 disabled:opacity-50"
+                  className="group inline-flex h-12 items-center gap-2 rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all duration-300 hover:opacity-90 disabled:opacity-50"
                 >
                   {loading ? 'Subscribing...' : 'Subscribe'}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
