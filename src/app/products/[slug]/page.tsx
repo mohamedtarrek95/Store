@@ -3,14 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ProductType, ReviewType } from '@/types';
+import { ProductType } from '@/types';
 import { ProductGallery } from '@/components/products/ProductGallery';
 import { ProductInfo } from '@/components/products/ProductInfo';
 import { ReviewList } from '@/components/products/ReviewList';
 import { ReviewForm } from '@/components/products/ReviewForm';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
 import { ChevronRight } from 'lucide-react';
 
 export default function ProductDetailPage() {
@@ -47,15 +45,15 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Skeleton className="mb-6 h-4 w-64" />
+        <div className="mb-6 h-4 w-64 animate-pulse rounded bg-muted" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <Skeleton className="aspect-square w-full rounded-xl" />
+          <div className="aspect-square w-full animate-pulse rounded-2xl bg-muted" />
           <div className="space-y-4">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-10 w-full" />
+            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+            <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
+            <div className="h-6 w-32 animate-pulse rounded bg-muted" />
+            <div className="h-20 w-full animate-pulse rounded bg-muted" />
+            <div className="h-12 w-full animate-pulse rounded-xl bg-muted" />
           </div>
         </div>
       </div>
@@ -65,9 +63,9 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
-        <h2 className="text-2xl font-bold">Product Not Found</h2>
+        <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold">Product Not Found</h2>
         <p className="mt-2 text-muted-foreground">The product you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-        <Link href="/products" className="mt-4 text-primary hover:underline">
+        <Link href="/products" className="mt-6 inline-flex h-12 items-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all hover:opacity-90">
           Browse all products
         </Link>
       </div>
@@ -79,24 +77,24 @@ export default function ProductDetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+      <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link href="/products" className="hover:text-foreground">Products</Link>
+        <Link href="/products" className="hover:text-foreground transition-colors">Products</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <Link href={`/products?category=${categorySlug}`} className="hover:text-foreground">
+        <Link href={`/products?category=${categorySlug}`} className="hover:text-foreground transition-colors">
           {categoryName}
         </Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-foreground">{product.name}</span>
+        <span className="text-foreground font-medium">{product.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <ProductGallery images={product.images} name={product.name} />
         <ProductInfo product={product} />
       </div>
 
-      <Separator className="my-12" />
+      <div className="my-16 h-px bg-border" />
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         <ReviewList productId={product._id} key={reviewKey} />
@@ -108,9 +106,11 @@ export default function ProductDetailPage() {
 
       {similarProducts.length > 0 && (
         <>
-          <Separator className="my-12" />
+          <div className="my-16 h-px bg-border" />
           <section>
-            <h2 className="mb-6 text-2xl font-bold tracking-tight">Similar Products</h2>
+            <h2 className="mb-8 font-[family-name:var(--font-heading)] text-2xl font-bold tracking-tight sm:text-3xl">
+              Similar Products
+            </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {similarProducts.map((p) => (
                 <ProductCard key={p._id} product={p} />

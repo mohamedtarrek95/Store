@@ -1,8 +1,6 @@
 'use client';
 
 import { useCart } from '@/providers/CartProvider';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { formatPrice } from '@/lib/utils';
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
@@ -17,27 +15,27 @@ export function CartSummary() {
   const total = subtotal - discount + shipping + tax;
 
   return (
-    <div className="rounded-lg border p-6">
+    <div className="rounded-2xl border p-6">
       <h2 className="text-lg font-semibold">Order Summary</h2>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-5 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Subtotal ({items.length} items)</span>
-          <span>{formatPrice(subtotal)}</span>
+          <span className="font-medium">{formatPrice(subtotal)}</span>
         </div>
 
         {discount > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-green-600">Discount ({coupon?.code})</span>
-            <span className="text-green-600">-{formatPrice(discount)}</span>
+            <span className="text-emerald-600">Discount ({coupon?.code})</span>
+            <span className="text-emerald-600 font-medium">-{formatPrice(discount)}</span>
           </div>
         )}
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Shipping</span>
-          <span>
+          <span className="font-medium">
             {shipping === 0 ? (
-              <span className="text-green-600">Free</span>
+              <span className="text-emerald-600">Free</span>
             ) : (
               formatPrice(shipping)
             )}
@@ -46,10 +44,10 @@ export function CartSummary() {
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Tax (8%)</span>
-          <span>{formatPrice(tax)}</span>
+          <span className="font-medium">{formatPrice(tax)}</span>
         </div>
 
-        <Separator />
+        <div className="h-px bg-border" />
 
         <div className="flex justify-between text-base font-semibold">
           <span>Total</span>
@@ -63,12 +61,13 @@ export function CartSummary() {
         )}
       </div>
 
-      <Button asChild className="mt-6 w-full h-12 text-base">
-        <Link href="/checkout">
-          <ShoppingBag className="mr-2 h-5 w-5" />
-          Proceed to Checkout
-        </Link>
-      </Button>
+      <Link
+        href="/checkout"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-4 text-base font-medium text-background transition-all duration-200 hover:opacity-90 shadow-sm"
+      >
+        <ShoppingBag className="h-5 w-5" />
+        Proceed to Checkout
+      </Link>
     </div>
   );
 }

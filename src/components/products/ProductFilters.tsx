@@ -1,12 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { CategoryType } from '@/types';
-import { RotateCcw, X } from 'lucide-react';
+import { RotateCcw, X, SlidersHorizontal } from 'lucide-react';
 
 interface Filters {
   category: string;
@@ -43,7 +40,8 @@ const sortOptions = [
 
 export function ProductFilters({ filters, onFilterChange, onClose }: ProductFiltersProps) {
   const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [priceRange, setPriceRange] = useState([filters.minPrice || 0, filters.maxPrice || 500]);
+  const [priceMin, setPriceMin] = useState(filters.minPrice || 0);
+  const [priceMax, setPriceMax] = useState(filters.maxPrice || 1000);
 
   useEffect(() => {
     fetch('/api/categories')
@@ -53,7 +51,8 @@ export function ProductFilters({ filters, onFilterChange, onClose }: ProductFilt
   }, []);
 
   useEffect(() => {
-    setPriceRange([filters.minPrice || 0, filters.maxPrice || 500]);
+    setPriceMin(filters.minPrice || 0);
+    setPriceMax(filters.maxPrice || 1000);
   }, [filters.minPrice, filters.maxPrice]);
 
   const updateFilter = (key: keyof Filters, value: string) => {
@@ -64,33 +63,27 @@ export function ProductFilters({ filters, onFilterChange, onClose }: ProductFilt
     onFilterChange({
       category: '',
       minPrice: 0,
-      maxPrice: 500,
+      maxPrice: 1000,
       color: '',
       size: '',
       sort: 'newest',
     });
-    setPriceRange([0, 500]);
-  };
-
-  const handlePriceChange = (value: number[]) => {
-    setPriceRange(value);
-  };
-
-  const handlePriceCommit = () => {
-    onFilterChange({ ...filters, minPrice: priceRange[0], maxPrice: priceRange[1] });
   };
 
   const activeFilterCount = [
     filters.category,
     filters.color,
     filters.size,
-    filters.minPrice > 0 || filters.maxPrice < 500,
+    filters.minPrice > 0 || filters.maxPrice < 1000,
   ].filter(Boolean).length;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Filters</h3>
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4" />
+          <h3 className="text-sm font-semibold">Filters</h3>
+        </div>
         <div className="flex items-center gap-2">
           {activeFilterCount > 0 && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
@@ -106,87 +99,104 @@ export function ProductFilters({ filters, onFilterChange, onClose }: ProductFilt
         </div>
       </div>
 
-      <Separator />
-
-      <div>
-        <Label className="mb-2 block text-sm font-medium">Sort By</Label>
-        <select
-          value={filters.sort}
-          onChange={(e) => updateFilter('sort', e.target.value)}
-          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {sortOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sort By</label>
+          <select
+            value={filters.sort}
+            onChange={(e) => updateFilter('sort', e.target.value)}
+            className="mt-2 flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
       <div>
-        <Label className="mb-2 block text-sm font-medium">Category</Label>
-        <div className="space-y-1">
-          <button
-            onClick={() => updateFilter('category', '')}
-            className={`block w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors hover:bg-accent ${
-              !filters.category ? 'bg-accent font-medium' : ''
-            }`}
-          >
-            All Categories
-          </button>
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</label>
+        <div className="mt-3 space-y-1">
           {categories.map((cat) => (
             <button
               key={cat._id}
-              onClick={() => updateFilter('category', cat.slug)}
-              className={`block w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors hover:bg-accent ${
+              onClick={() => updateFilter('category', filters.category === cat.slug ? '' : cat.slug)}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
                 filters.category === cat.slug ? 'bg-accent font-medium' : ''
               }`}
             >
+              <div
+                className={`flex h-4 w-4 items-center justify-center rounded border ${
+                  filters.category === cat.slug ? 'border-foreground bg-foreground' : 'border-input'
+                }`}
+              >
+                {filters.category === cat.slug && <div className="h-2 w-2 rounded-sm bg-background" />}
+              </div>
               {cat.name}
             </button>
           ))}
         </div>
       </div>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
       <div>
-        <Label className="mb-2 block text-sm font-medium">
-          Price Range (${priceRange[0]} — ${priceRange[1]})
-        </Label>
-        <div className="px-1">
-          <Slider
-            min={0}
-            max={500}
-            step={10}
-            value={priceRange}
-            onValueChange={handlePriceChange}
-            onValueCommit={handlePriceCommit}
-          />
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Price Range
+        </label>
+        <div className="mt-3 space-y-3">
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={0}
+              max={1000}
+              step={10}
+              value={priceMin}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setPriceMin(Math.min(v, priceMax - 10));
+              }}
+              onMouseUp={() => onFilterChange({ ...filters, minPrice: priceMin, maxPrice: priceMax })}
+              className="flex-1 accent-foreground"
+            />
+            <input
+              type="range"
+              min={0}
+              max={1000}
+              step={10}
+              value={priceMax}
+              onChange={(e) => {
+                const v = Number(e.target.value);
+                setPriceMax(Math.max(v, priceMin + 10));
+              }}
+              onMouseUp={() => onFilterChange({ ...filters, minPrice: priceMin, maxPrice: priceMax })}
+              className="flex-1 accent-foreground"
+            />
+          </div>
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>${priceMin}</span>
+            <span>${priceMax}</span>
+          </div>
         </div>
       </div>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
       <div>
-        <Label className="mb-2 block text-sm font-medium">Color</Label>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => updateFilter('color', '')}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-              !filters.color ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-            }`}
-          >
-            All
-          </button>
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Color</label>
+        <div className="mt-3 flex flex-wrap gap-2">
           {colors.map((color) => (
             <button
               key={color.value}
-              onClick={() => updateFilter('color', color.value)}
-              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                filters.color === color.value ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+              onClick={() => updateFilter('color', filters.color === color.value ? '' : color.value)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                filters.color === color.value
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-input hover:border-foreground/50'
               }`}
             >
               {color.name}
@@ -195,25 +205,19 @@ export function ProductFilters({ filters, onFilterChange, onClose }: ProductFilt
         </div>
       </div>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
       <div>
-        <Label className="mb-2 block text-sm font-medium">Size</Label>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => updateFilter('size', '')}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-              !filters.size ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
-            }`}
-          >
-            All
-          </button>
+        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Size</label>
+        <div className="mt-3 flex flex-wrap gap-2">
           {sizes.map((size) => (
             <button
               key={size}
-              onClick={() => updateFilter('size', size.toLowerCase())}
-              className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                filters.size === size.toLowerCase() ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'
+              onClick={() => updateFilter('size', filters.size === size.toLowerCase() ? '' : size.toLowerCase())}
+              className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-colors ${
+                filters.size === size.toLowerCase()
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'border-input hover:border-foreground/50'
               }`}
             >
               {size}

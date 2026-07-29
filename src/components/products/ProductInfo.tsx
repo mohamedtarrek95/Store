@@ -4,9 +4,6 @@ import { useState } from 'react';
 import { ProductType } from '@/types';
 import { useCart } from '@/providers/CartProvider';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Heart, ShoppingBag, Star, Minus, Plus, Check, ShieldCheck, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice, getDiscountPercentage } from '@/lib/utils';
@@ -26,6 +23,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [adding, setAdding] = useState(false);
 
   const discount = getDiscountPercentage(product.price, product.discountPrice);
+  const effectivePrice = product.discountPrice || product.price;
 
   const handleAddToCart = async () => {
     if (product.stock <= 0) return;
@@ -42,7 +40,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
       stock: product.stock,
     });
     toast.success(`${product.name} added to cart`);
-    setAdding(false);
+    setTimeout(() => setAdding(false), 500);
   };
 
   const handleWishlist = async () => {
@@ -68,22 +66,24 @@ export function ProductInfo({ product }: ProductInfoProps) {
   return (
     <div className="space-y-6">
       {product.brand && (
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
           {product.brand}
         </p>
       )}
 
-      <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{product.name}</h1>
+      <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight sm:text-4xl">
+        {product.name}
+      </h1>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
               className={`h-4 w-4 ${
                 i < Math.round(product.rating)
                   ? 'fill-yellow-400 text-yellow-400'
-                  : 'text-muted-foreground/30'
+                  : 'text-muted-foreground/20'
               }`}
             />
           ))}
@@ -98,7 +98,9 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <>
             <span className="text-3xl font-bold">{formatPrice(product.discountPrice)}</span>
             <span className="text-lg text-muted-foreground line-through">{formatPrice(product.price)}</span>
-            <Badge variant="destructive">-{discount}% OFF</Badge>
+            <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">
+              -{discount}% OFF
+            </span>
           </>
         ) : (
           <span className="text-3xl font-bold">{formatPrice(product.price)}</span>
@@ -107,21 +109,21 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
       <p className="leading-relaxed text-muted-foreground">{product.description}</p>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
       {product.colors && product.colors.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <p className="mb-3 text-sm font-medium">
             Color: <span className="text-muted-foreground">{selectedColor}</span>
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {product.colors.map((color) => (
               <button
                 key={color}
                 onClick={() => setSelectedColor(color)}
-                className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all ${
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-200 ${
                   selectedColor === color
-                    ? 'border-primary ring-1 ring-primary'
+                    ? 'border-foreground ring-2 ring-foreground/20 scale-110'
                     : 'border-muted-foreground/30 hover:border-muted-foreground/60'
                 }`}
                 style={{ backgroundColor: color.toLowerCase() }}
@@ -138,7 +140,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
       {product.sizes && product.sizes.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-medium">
+          <p className="mb-3 text-sm font-medium">
             Size: <span className="text-muted-foreground">{selectedSize}</span>
           </p>
           <div className="flex flex-wrap gap-2">
@@ -146,9 +148,9 @@ export function ProductInfo({ product }: ProductInfoProps) {
               <button
                 key={size}
                 onClick={() => setSelectedSize(size)}
-                className={`rounded-md border px-4 py-2 text-sm font-medium transition-all ${
+                className={`rounded-xl border px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
                   selectedSize === size
-                    ? 'border-primary bg-primary text-primary-foreground'
+                    ? 'border-foreground bg-foreground text-background'
                     : 'border-input hover:border-foreground/50'
                 }`}
               >
@@ -160,18 +162,21 @@ export function ProductInfo({ product }: ProductInfoProps) {
       )}
 
       <div>
-        <p className="mb-2 text-sm font-medium">Quantity</p>
-        <div className="flex w-32 items-center rounded-md border">
+        <p className="mb-3 text-sm font-medium">Quantity</p>
+        <div className="inline-flex items-center rounded-xl border">
           <button
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="flex h-10 w-10 items-center justify-center transition-colors hover:bg-accent"
+            className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-accent rounded-l-xl"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
-          <span className="flex flex-1 items-center justify-center text-sm font-medium">{quantity}</span>
+          <span className="flex h-11 w-14 items-center justify-center text-sm font-medium border-x">
+            {quantity}
+          </span>
           <button
             onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-            className="flex h-10 w-10 items-center justify-center transition-colors hover:bg-accent"
+            className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-accent rounded-r-xl"
+            disabled={quantity >= product.stock}
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -181,56 +186,72 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <div className="flex items-center gap-2">
         {product.stock > 0 ? (
           product.stock <= 5 ? (
-            <Badge variant="warning" className="text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-amber-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-600 animate-pulse" />
               Only {product.stock} left
-            </Badge>
+            </span>
           ) : (
-            <Badge variant="success" className="text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
               In Stock
-            </Badge>
+            </span>
           )
         ) : (
-          <Badge variant="destructive" className="text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
+            <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
             Out of Stock
-          </Badge>
+          </span>
         )}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button
-          size="lg"
-          className="flex-1 h-12 text-base"
-          onClick={handleAddToCart}
-          disabled={product.stock <= 0 || adding}
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3">
+          <button
+            onClick={handleAddToCart}
+            disabled={product.stock <= 0 || adding}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground py-4 text-base font-medium text-background transition-all duration-200 hover:opacity-90 disabled:opacity-50 shadow-sm"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {adding ? 'Adding...' : 'Add to Cart'}
+          </button>
+          <button
+            onClick={handleWishlist}
+            className="flex h-[56px] w-[56px] items-center justify-center rounded-xl border border-input transition-all duration-200 hover:border-foreground/50 hover:bg-accent"
+          >
+            <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
+          </button>
+        </div>
+        <button
+          disabled={product.stock <= 0}
+          className="w-full rounded-xl border border-foreground/20 py-4 text-base font-medium transition-all duration-200 hover:bg-accent disabled:opacity-50"
         >
-          <ShoppingBag className="mr-2 h-5 w-5" />
-          {adding ? 'Adding...' : 'Add to Cart'}
-        </Button>
-        <Button size="lg" variant="outline" onClick={handleWishlist} className="h-12 px-4">
-          <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`} />
-        </Button>
+          Buy Now
+        </button>
       </div>
 
-      <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
+      <div className="space-y-3 rounded-2xl bg-muted/30 p-5">
         <div className="flex items-center gap-3 text-sm">
           <Truck className="h-4 w-4 text-muted-foreground" />
-          <span>Free shipping on orders over $100</span>
+          <span className="text-muted-foreground">Free shipping on orders over $100</span>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-          <span>30-day return guarantee</span>
+          <span className="text-muted-foreground">30-day return guarantee</span>
         </div>
       </div>
 
-      <Separator />
+      <div className="h-px bg-border" />
 
-      <div className="space-y-1 text-sm text-muted-foreground">
+      <div className="space-y-1.5 text-sm text-muted-foreground">
         <p>
           <span className="font-medium text-foreground">SKU:</span> {product.sku}
         </p>
         <p>
           <span className="font-medium text-foreground">Category:</span>{' '}
-          <Link href={`/products?category=${typeof product.category === 'string' ? product.category : product.category.slug}`} className="hover:text-primary">
+          <Link
+            href={`/products?category=${typeof product.category === 'string' ? product.category : product.category.slug}`}
+            className="hover:text-foreground transition-colors"
+          >
             {typeof product.category === 'string' ? product.category : product.category.name}
           </Link>
         </p>

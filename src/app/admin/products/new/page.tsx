@@ -1,12 +1,20 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import ProductForm from '@/components/admin/ProductForm';
 
 export default function NewProductPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Add New Product</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Add New Product</h1>
+        <p className="text-muted-foreground mt-1">Create a new product for your store</p>
+      </div>
       <ProductForm />
-    </div>
+    </motion.div>
   );
 }

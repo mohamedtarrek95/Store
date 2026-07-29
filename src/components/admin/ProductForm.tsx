@@ -2,15 +2,36 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Plus, X } from 'lucide-react';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Plus, X, ImageIcon, GripVertical } from 'lucide-react';
 import { CategoryType } from '@/types';
+
+const productSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().min(1, 'Description is required'),
+  price: z.coerce.number().positive('Price must be positive'),
+  comparePrice: z.coerce.number().optional(),
+  category: z.string().min(1, 'Category is required'),
+  brand: z.string().min(1, 'Brand is required'),
+  sku: z.string().min(1, 'SKU is required'),
+  stock: z.coerce.number().int().min(0, 'Stock must be 0 or more'),
+  featured: z.boolean().default(false),
+  sale: z.boolean().default(false),
+  rating: z.coerce.number().min(0).max(5).optional(),
+});
+
+type ProductFormValues = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
   initialData?: any;
@@ -20,26 +41,37 @@ interface ProductFormProps {
 
 export default function ProductForm({ initialData, isEditing, productId }: ProductFormProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryType[]>([]);
-  const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    name: '',
-    description: '',
-    category: '',
-    price: '',
-    discountPrice: '',
-    sku: '',
-    stock: '',
-    images: [''] as string[],
-    featuredImage: '',
-    colors: '',
-    sizes: '',
-    brand: '',
-    featured: false,
-    bestSeller: false,
-    newArrival: false,
+  const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [serverError, setServerError] = useState('');
+  const [categoryLoading, setCategoryLoading] = useState(true);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(productSchema) as any,
+    defaultValues: {
+      name: '',
+      description: '',
+      price: undefined,
+      comparePrice: undefined,
+      category: '',
+      brand: '',
+      sku: '',
+      stock: 0,
+      featured: false,
+      sale: false,
+      rating: undefined,
+    },
   });
+
+  const featured = watch('featured');
+  const sale = watch('sale');
 
   useEffect(() => {
     fetchCategories();
@@ -47,94 +79,61 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
   }, [initialData]);
 
   const fetchCategories = async () => {
+    setCategoryLoading(true);
     try {
       const res = await fetch('/api/categories');
       const data = await res.json();
       setCategories(data);
     } catch {
       console.error('Failed to load categories');
+    } finally {
+      setCategoryLoading(false);
     }
   };
 
   const populateForm = (data: any) => {
-    setForm({
-      name: data.name || '',
-      description: data.description || '',
-      category: data.category?._id || data.category || '',
-      price: String(data.price || ''),
-      discountPrice: data.discountPrice ? String(data.discountPrice) : '',
-      sku: data.sku || '',
-      stock: String(data.stock ?? ''),
-      images: data.images?.length ? data.images : [''],
-      featuredImage: data.featuredImage || '',
-      colors: data.colors?.join(', ') || '',
-      sizes: data.sizes?.join(', ') || '',
-      brand: data.brand || '',
-      featured: data.featured || false,
-      bestSeller: data.bestSeller || false,
-      newArrival: data.newArrival || false,
-    });
+    setValue('name', data.name || '');
+    setValue('description', data.description || '');
+    setValue('price', data.price || undefined);
+    setValue('comparePrice', data.comparePrice || undefined);
+    setValue('category', data.category?._id || data.category || '');
+    setValue('brand', data.brand || '');
+    setValue('sku', data.sku || '');
+    setValue('stock', data.stock ?? 0);
+    setValue('featured', data.featured || false);
+    setValue('sale', data.sale || false);
+    setValue('rating', data.rating || undefined);
+    if (data.images?.length) setImageUrls(data.images);
   };
 
-  const updateField = (field: string, value: any) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+  const addImage = () => setImageUrls((prev) => [...prev, '']);
+  const removeImage = (index: number) => {
+    setImageUrls((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev));
   };
-
-  const addImageField = () => {
-    setForm(prev => ({ ...prev, images: [...prev.images, ''] }));
-  };
-
-  const removeImageField = (index: number) => {
-    setForm(prev => {
-      const images = prev.images.filter((_, i) => i !== index);
-      return { ...prev, images: images.length ? images : [''] };
-    });
-  };
-
   const updateImage = (index: number, value: string) => {
-    setForm(prev => {
-      const images = [...prev.images];
-      images[index] = value;
-      return { ...prev, images };
+    setImageUrls((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
     });
   };
 
-  const validate = (): string | null => {
-    if (!form.name.trim()) return 'Name is required';
-    if (!form.description.trim()) return 'Description is required';
-    if (!form.category) return 'Category is required';
-    if (!form.price || isNaN(Number(form.price))) return 'Valid price is required';
-    if (!form.sku.trim()) return 'SKU is required';
-    if (form.stock === '' || isNaN(Number(form.stock))) return 'Valid stock quantity is required';
-    if (!form.brand.trim()) return 'Brand is required';
-    const validImages = form.images.filter(img => img.trim());
-    if (!validImages.length) return 'At least one image URL is required';
-    if (!form.featuredImage.trim()) return 'Featured image URL is required';
-    return null;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
+  const onSubmit = async (data: ProductFormValues) => {
+    setServerError('');
+    const validImages = imageUrls.filter((url) => url.trim());
+    if (!validImages.length) {
+      setServerError('At least one image URL is required');
       return;
     }
 
-    setLoading(true);
-
     try {
-      const validImages = form.images.filter(img => img.trim());
       const payload = {
-        ...form,
-        price: parseFloat(form.price),
-        discountPrice: form.discountPrice ? parseFloat(form.discountPrice) : undefined,
-        stock: parseInt(form.stock, 10),
+        ...data,
         images: validImages,
-        colors: form.colors,
-        sizes: form.sizes,
+        featuredImage: validImages[0],
+        colors: [],
+        sizes: [],
+        discountPrice: data.sale ? data.comparePrice : undefined,
       };
 
       const url = isEditing && productId ? `/api/products/${productId}` : '/api/products';
@@ -147,169 +146,249 @@ export default function ProductForm({ initialData, isEditing, productId }: Produ
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to save product');
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to save product');
       }
 
       router.push('/admin/products');
       router.refresh();
     } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setServerError(err.message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {error && (
-        <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-4 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <AnimatePresence>
+        {serverError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-4 text-sm text-red-600 dark:text-red-400"
+          >
+            {serverError}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="rounded-xl border bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-sm p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Basic Information</h3>
+              <p className="text-sm text-muted-foreground">Product name, description, and brand</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Product Name</Label>
+              <Input id="name" {...register('name')} placeholder="Product name" />
+              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                {...register('description')}
+                placeholder="Product description"
+                rows={5}
+              />
+              {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Product Name</Label>
-                <Input id="name" value={form.name} onChange={e => updateField('name', e.target.value)} placeholder="Product name" />
+                <Label htmlFor="brand">Brand</Label>
+                <Input id="brand" {...register('brand')} placeholder="Brand name" />
+                {errors.brand && <p className="text-xs text-red-500">{errors.brand.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" value={form.description} onChange={e => updateField('description', e.target.value)} placeholder="Product description" rows={5} />
+                <Label htmlFor="sku">SKU</Label>
+                <Input id="sku" {...register('sku')} placeholder="SKU" />
+                {errors.sku && <p className="text-xs text-red-500">{errors.sku.message}</p>}
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Brand</Label>
-                  <Input id="brand" value={form.brand} onChange={e => updateField('brand', e.target.value)} placeholder="Brand name" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU</Label>
-                  <Input id="sku" value={form.sku} onChange={e => updateField('sku', e.target.value)} placeholder="SKU" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Inventory</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
+          <div className="rounded-xl border bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-sm p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Pricing & Inventory</h3>
+              <p className="text-sm text-muted-foreground">Price, stock, and category</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price">Price ($)</Label>
-                <Input id="price" type="number" step="0.01" value={form.price} onChange={e => updateField('price', e.target.value)} placeholder="0.00" />
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  {...register('price')}
+                  placeholder="0.00"
+                />
+                {errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="discountPrice">Discount Price ($)</Label>
-                <Input id="discountPrice" type="number" step="0.01" value={form.discountPrice} onChange={e => updateField('discountPrice', e.target.value)} placeholder="0.00" />
+                <Label htmlFor="comparePrice">
+                  Compare Price ($) <span className="text-muted-foreground text-xs">(original)</span>
+                </Label>
+                <Input
+                  id="comparePrice"
+                  type="number"
+                  step="0.01"
+                  {...register('comparePrice')}
+                  placeholder="0.00"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={form.category} onValueChange={v => updateField('category', v)}>
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                <Select
+                  value={watch('category')}
+                  onValueChange={(v) => setValue('category', v, { shouldValidate: true })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={categoryLoading ? 'Loading...' : 'Select category'} />
+                  </SelectTrigger>
                   <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="stock">Stock Quantity</Label>
-                <Input id="stock" type="number" value={form.stock} onChange={e => updateField('stock', e.target.value)} placeholder="0" />
+                <Input id="stock" type="number" {...register('stock')} placeholder="0" />
+                {errors.stock && <p className="text-xs text-red-500">{errors.stock.message}</p>}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Images</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {form.images.map((img, index) => (
-                <div key={index} className="flex items-center gap-2">
+          <div className="rounded-xl border bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-sm p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Images</h3>
+              <p className="text-sm text-muted-foreground">Add product image URLs</p>
+            </div>
+            <div className="space-y-3">
+              {imageUrls.map((url, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-2"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-muted">
+                    {url.trim() ? (
+                      <img
+                        src={url}
+                        alt=""
+                        className="h-full w-full rounded-lg object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
                   <Input
-                    value={img}
-                    onChange={e => updateImage(index, e.target.value)}
-                    placeholder="Image URL"
+                    value={url}
+                    onChange={(e) => updateImage(index, e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="flex-1"
                   />
-                  <Button type="button" variant="ghost" size="icon" onClick={() => removeImageField(index)} disabled={form.images.length <= 1}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeImage(index)}
+                    disabled={imageUrls.length <= 1}
+                  >
                     <X className="h-4 w-4" />
                   </Button>
-                </div>
+                </motion.div>
               ))}
-              <Button type="button" variant="outline" size="sm" onClick={addImageField}>
+              <Button type="button" variant="outline" size="sm" onClick={addImage}>
                 <Plus className="h-4 w-4 mr-2" /> Add Image
               </Button>
-
-              <div className="space-y-2 pt-4">
-                <Label htmlFor="featuredImage">Featured Image URL</Label>
-                <Input id="featuredImage" value={form.featuredImage} onChange={e => updateField('featuredImage', e.target.value)} placeholder="Featured image URL" />
-                {form.images.filter(i => i.trim()).length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {form.images.filter(i => i.trim()).map((img, i) => (
-                      <button
+              {imageUrls.filter((u) => u.trim()).length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {imageUrls
+                    .filter((u) => u.trim())
+                    .map((img, i) => (
+                      <div
                         key={i}
-                        type="button"
-                        onClick={() => updateField('featuredImage', img)}
-                        className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${form.featuredImage === img ? 'border-primary ring-2 ring-primary' : 'border-gray-200 dark:border-gray-700'}`}
+                        className="relative h-14 w-14 overflow-hidden rounded-lg border-2 border-primary/30"
                       >
-                        <img src={img} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                      </button>
+                        <img
+                          src={img}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
                     ))}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              )}
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Variants</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="colors">Colors (comma separated)</Label>
-                <Input id="colors" value={form.colors} onChange={e => updateField('colors', e.target.value)} placeholder="Red, Blue, Black" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sizes">Sizes (comma separated)</Label>
-                <Input id="sizes" value={form.sizes} onChange={e => updateField('sizes', e.target.value)} placeholder="S, M, L, XL" />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-xl border bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-sm p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Rating</h3>
+              <p className="text-sm text-muted-foreground">Optional average rating (0-5)</p>
+            </div>
+            <div className="space-y-2 max-w-[200px]">
+              <Label htmlFor="rating">Rating</Label>
+              <Input
+                id="rating"
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                {...register('rating')}
+                placeholder="4.5"
+              />
+              {errors.rating && <p className="text-xs text-red-500">{errors.rating.message}</p>}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Status</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="featured">Featured</Label>
-                <Switch id="featured" checked={form.featured} onCheckedChange={v => updateField('featured', v)} />
+          <div className="rounded-xl border bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl shadow-sm p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold">Status</h3>
+              <p className="text-sm text-muted-foreground">Product visibility and flags</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="featured" className="font-medium">Featured</Label>
+                <p className="text-xs text-muted-foreground">Show as featured product</p>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="bestSeller">Best Seller</Label>
-                <Switch id="bestSeller" checked={form.bestSeller} onCheckedChange={v => updateField('bestSeller', v)} />
+              <Switch
+                id="featured"
+                checked={featured}
+                onCheckedChange={(v) => setValue('featured', v)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label htmlFor="sale" className="font-medium">Sale</Label>
+                <p className="text-xs text-muted-foreground">Enable sale pricing</p>
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="newArrival">New Arrival</Label>
-                <Switch id="newArrival" checked={form.newArrival} onCheckedChange={v => updateField('newArrival', v)} />
-              </div>
-            </CardContent>
-          </Card>
+              <Switch
+                id="sale"
+                checked={sale}
+                onCheckedChange={(v) => setValue('sale', v)}
+              />
+            </div>
+          </div>
 
           <div className="flex gap-3">
-            <Button type="submit" disabled={loading} className="flex-1">
-              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting} className="flex-1">
+              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {isEditing ? 'Update Product' : 'Create Product'}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.back()}>

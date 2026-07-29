@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
 import { Search, X, Loader2 } from 'lucide-react';
 import { ProductType } from '@/types';
+import { formatPrice } from '@/lib/utils';
 
 interface SearchBarProps {
   onClose?: () => void;
@@ -58,15 +58,15 @@ export function SearchBar({ onClose }: SearchBarProps) {
   return (
     <div className="relative">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
           ref={inputRef}
           type="text"
           placeholder="Search products..."
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          className="h-12 pl-10 pr-10"
+          className="h-13 w-full rounded-2xl border border-input bg-background pl-11 pr-11 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
         />
         {query && (
           <button
@@ -76,7 +76,7 @@ export function SearchBar({ onClose }: SearchBarProps) {
               setOpen(false);
               inputRef.current?.focus();
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -84,13 +84,13 @@ export function SearchBar({ onClose }: SearchBarProps) {
       </div>
 
       {open && (
-        <div className="absolute top-full z-50 mt-2 w-full overflow-hidden rounded-lg border bg-popover shadow-lg">
+        <div className="absolute top-full z-50 mt-2 w-full overflow-hidden rounded-2xl border bg-popover shadow-xl">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
+            <div className="flex items-center justify-center py-10">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : results.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            <div className="px-4 py-10 text-center text-sm text-muted-foreground">
               No products found for &ldquo;{query}&rdquo;
             </div>
           ) : (
@@ -103,17 +103,17 @@ export function SearchBar({ onClose }: SearchBarProps) {
                       setOpen(false);
                       onClose?.();
                     }}
-                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent"
+                    className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-accent"
                   >
                     <img
-                      src={product.featuredImage || product.images?.[0]}
+                      src={product.featuredImage || product.images?.[0] || '/placeholder.svg'}
                       alt={product.name}
-                      className="h-12 w-12 rounded-md object-cover"
+                      className="h-14 w-14 flex-shrink-0 rounded-xl object-cover"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-sm font-medium">{product.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        ${product.discountPrice || product.price}
+                        {formatPrice(product.discountPrice || product.price)}
                       </p>
                     </div>
                   </Link>
@@ -126,9 +126,9 @@ export function SearchBar({ onClose }: SearchBarProps) {
                     setOpen(false);
                     onClose?.();
                   }}
-                  className="block px-4 py-3 text-center text-sm font-medium text-primary transition-colors hover:bg-accent"
+                  className="block px-4 py-3.5 text-center text-sm font-medium text-foreground transition-colors hover:bg-accent"
                 >
-                  View all results
+                  View all results for &ldquo;{query}&rdquo;
                 </Link>
               </li>
             </ul>

@@ -5,10 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { OrderType } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/utils';
 import { ArrowLeft, Package, CheckCircle2, Truck, Clock, XCircle } from 'lucide-react';
 
@@ -54,11 +50,11 @@ export default function OrderDetailPage() {
 
   if (!session) {
     return (
-      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
-        <h2 className="text-2xl font-bold">Sign in to view order details</h2>
-        <Button asChild className="mt-4">
-          <Link href="/login">Sign In</Link>
-        </Button>
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-24">
+        <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold">Sign in to view order details</h2>
+        <Link href="/login" className="mt-6 inline-flex h-12 items-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all hover:opacity-90">
+          Sign In
+        </Link>
       </div>
     );
   }
@@ -66,20 +62,20 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-48 w-full rounded-lg" />
-        <Skeleton className="h-32 w-full rounded-lg" />
+        <div className="h-8 w-64 animate-pulse rounded bg-muted" />
+        <div className="h-48 w-full animate-pulse rounded-2xl bg-muted" />
+        <div className="h-32 w-full animate-pulse rounded-2xl bg-muted" />
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
-        <h2 className="text-2xl font-bold">Order Not Found</h2>
-        <Button asChild className="mt-4">
-          <Link href="/orders">View All Orders</Link>
-        </Button>
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-24">
+        <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold">Order Not Found</h2>
+        <Link href="/orders" className="mt-6 inline-flex h-12 items-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all hover:opacity-90">
+          View All Orders
+        </Link>
       </div>
     );
   }
@@ -91,35 +87,30 @@ export default function OrderDetailPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <Button variant="ghost" asChild>
-          <Link href="/orders">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Orders
-          </Link>
-        </Button>
+        <Link href="/orders" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Orders
+        </Link>
       </div>
 
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight">
             Order #{order._id.slice(-8).toUpperCase()}
           </h1>
-          <Badge
-            variant={
-              order.status === 'delivered' ? 'success' :
-              order.status === 'cancelled' ? 'destructive' :
-              'warning'
-            }
-            className="text-sm"
-          >
+          <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${
+            order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+            order.status === 'cancelled' ? 'bg-red-50 text-red-700 border-red-200' :
+            'bg-amber-50 text-amber-700 border-amber-200'
+          }`}>
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-          </Badge>
+          </span>
         </div>
         <p className="mt-1 text-muted-foreground">Placed on {formatDate(order.createdAt)}</p>
       </div>
 
       <div className="mb-8">
-        <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-6">
+        <div className="flex items-center justify-between rounded-2xl border bg-muted/30 p-6 overflow-x-auto">
           {statusSteps.map((step, index) => {
             const Icon = step.icon;
             const isActive = order.status === 'cancelled'
@@ -128,20 +119,20 @@ export default function OrderDetailPage() {
             const isCancelled = order.status === 'cancelled';
 
             return (
-              <div key={step.key} className="flex flex-col items-center gap-2">
+              <div key={step.key} className="flex flex-col items-center gap-2 min-w-[80px]">
                 <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full transition-all ${
                     isActive
                       ? isCancelled && step.key === 'cancelled'
-                        ? 'bg-destructive text-destructive-foreground'
-                        : 'bg-primary text-primary-foreground'
+                        ? 'bg-destructive text-destructive-foreground shadow-md'
+                        : 'bg-foreground text-background shadow-md'
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
                 </div>
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-xs font-medium whitespace-nowrap ${
                     isActive ? 'text-foreground' : 'text-muted-foreground'
                   }`}
                 >
@@ -154,20 +145,20 @@ export default function OrderDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-lg border p-6">
-            <h2 className="mb-4 text-lg font-semibold">Order Items</h2>
+        <div className="space-y-6 lg:col-span-2">
+          <div className="rounded-2xl border p-6">
+            <h2 className="mb-5 text-lg font-semibold">Order Items</h2>
             <div className="space-y-4">
               {order.items.map((item, index) => (
                 <div key={index} className="flex gap-4">
                   <img
                     src={item.image || '/placeholder.svg'}
                     alt={item.name}
-                    className="h-20 w-20 flex-shrink-0 rounded-md object-cover"
+                    className="h-20 w-20 flex-shrink-0 rounded-xl object-cover bg-muted"
                   />
                   <div className="flex-1">
                     <p className="font-medium">{item.name}</p>
-                    <div className="mt-1 flex gap-2 text-sm text-muted-foreground">
+                    <div className="mt-1 flex gap-3 text-sm text-muted-foreground">
                       {item.color && <span>Color: {item.color}</span>}
                       {item.size && <span>Size: {item.size}</span>}
                     </div>
@@ -183,7 +174,7 @@ export default function OrderDetailPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg border p-6">
+          <div className="rounded-2xl border p-6">
             <h2 className="mb-4 text-lg font-semibold">Shipping Address</h2>
             <div className="space-y-1 text-sm">
               <p className="font-medium">{order.shippingAddress.fullName}</p>
@@ -198,28 +189,28 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border p-6">
+          <div className="rounded-2xl border p-6">
             <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>{formatPrice(order.subtotal)}</span>
+                <span className="font-medium">{formatPrice(order.subtotal)}</span>
               </div>
               {order.discount > 0 && (
-                <div className="flex justify-between text-green-600">
+                <div className="flex justify-between text-emerald-600">
                   <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
-                  <span>-{formatPrice(order.discount)}</span>
+                  <span className="font-medium">-{formatPrice(order.discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping</span>
-                <span>{order.shipping === 0 ? 'Free' : formatPrice(order.shipping)}</span>
+                <span className="font-medium">{order.shipping === 0 ? <span className="text-emerald-600">Free</span> : formatPrice(order.shipping)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tax</span>
-                <span>{formatPrice(order.tax)}</span>
+                <span className="font-medium">{formatPrice(order.tax)}</span>
               </div>
-              <Separator />
+              <div className="h-px bg-border" />
               <div className="flex justify-between text-base font-semibold">
                 <span>Total</span>
                 <span>{formatPrice(order.total)}</span>
@@ -227,13 +218,17 @@ export default function OrderDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border p-6">
+          <div className="rounded-2xl border p-6">
             <h2 className="mb-4 text-lg font-semibold">Payment</h2>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}</span>
-              <Badge variant={order.paymentStatus === 'paid' ? 'success' : order.paymentStatus === 'pending' ? 'warning' : 'destructive'}>
+              <span className={`inline-flex rounded-full border px-3 py-0.5 text-xs font-medium ${
+                order.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                order.paymentStatus === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                'bg-red-50 text-red-700 border-red-200'
+              }`}>
                 {order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
-              </Badge>
+              </span>
             </div>
           </div>
         </div>

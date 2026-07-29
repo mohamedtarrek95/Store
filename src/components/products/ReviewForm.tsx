@@ -2,10 +2,6 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { reviewSchema } from '@/lib/validations';
@@ -68,12 +64,12 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border p-6">
+    <form onSubmit={handleSubmit} className="space-y-5 rounded-2xl border p-6">
       <h3 className="text-lg font-semibold">Write a Review</h3>
 
       <div>
-        <Label>Rating</Label>
-        <div className="mt-1 flex gap-1">
+        <label className="text-sm font-medium">Rating</label>
+        <div className="mt-2 flex gap-1">
           {Array.from({ length: 5 }).map((_, i) => {
             const starValue = i + 1;
             return (
@@ -86,10 +82,10 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
                 className="transition-transform hover:scale-110"
               >
                 <Star
-                  className={`h-6 w-6 ${
+                  className={`h-7 w-7 ${
                     starValue <= (hoverRating || rating)
                       ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-muted-foreground/30'
+                      : 'text-muted-foreground/20'
                   }`}
                 />
               </button>
@@ -100,32 +96,37 @@ export function ReviewForm({ productId, onReviewSubmitted }: ReviewFormProps) {
       </div>
 
       <div>
-        <Label htmlFor="review-title">Title</Label>
-        <Input
+        <label htmlFor="review-title" className="text-sm font-medium">Title</label>
+        <input
           id="review-title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Summarize your review"
-          className="mt-1"
+          className="mt-2 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
         />
         {errors.title && <p className="mt-1 text-xs text-destructive">{errors.title}</p>}
       </div>
 
       <div>
-        <Label htmlFor="review-comment">Comment</Label>
-        <Textarea
+        <label htmlFor="review-comment" className="text-sm font-medium">Comment</label>
+        <textarea
           id="review-comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Share your experience with this product"
-          className="mt-1 min-h-[100px]"
+          rows={4}
+          className="mt-2 flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring resize-none"
         />
         {errors.comment && <p className="mt-1 text-xs text-destructive">{errors.comment}</p>}
       </div>
 
-      <Button type="submit" disabled={submitting}>
+      <button
+        type="submit"
+        disabled={submitting}
+        className="inline-flex h-11 items-center justify-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+      >
         {submitting ? 'Submitting...' : 'Submit Review'}
-      </Button>
+      </button>
     </form>
   );
 }

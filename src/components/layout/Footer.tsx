@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import { Globe, Camera, MessageCircle, PlayCircle, Mail, Phone, MapPin } from 'lucide-react';
 
 const footerLinks = {
-  shop: {
-    title: 'Shop',
+  quickLinks: {
+    title: 'Quick Links',
     links: [
       { label: 'All Products', href: '/products' },
       { label: 'Watches', href: '/products?category=watches' },
@@ -12,8 +11,8 @@ const footerLinks = {
       { label: 'Rings', href: '/products?category=rings' },
     ],
   },
-  support: {
-    title: 'Support',
+  customerService: {
+    title: 'Customer Service',
     links: [
       { label: 'Contact Us', href: '/contact' },
       { label: 'FAQs', href: '/faqs' },
@@ -36,41 +35,37 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-muted/50">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              LUXE <span className="text-sm text-muted-foreground">Accessories</span>
+    <footer className="relative border-t bg-foreground/[0.02]">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-foreground/[0.03] to-transparent pointer-events-none" />
+      <div className="container mx-auto px-4 py-16 relative">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block">
+              <span className="text-2xl font-bold tracking-tight font-[family-name:var(--font-heading)]">LUXE</span>
+              <span className="block text-sm text-muted-foreground mt-1">Accessories</span>
             </Link>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Premium fashion accessories crafted for those who appreciate elegance and quality.
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              Premium fashion accessories crafted for those who appreciate timeless elegance and uncompromising quality.
             </p>
-            <div className="mt-4 flex items-center gap-3">
-              <Link href="#" className="rounded-full p-2 transition-colors hover:bg-accent">
-                <Globe className="h-4 w-4" />
-              </Link>
-              <Link href="#" className="rounded-full p-2 transition-colors hover:bg-accent">
-                <Camera className="h-4 w-4" />
-              </Link>
-              <Link href="#" className="rounded-full p-2 transition-colors hover:bg-accent">
-                <MessageCircle className="h-4 w-4" />
-              </Link>
-              <Link href="#" className="rounded-full p-2 transition-colors hover:bg-accent">
-                <PlayCircle className="h-4 w-4" />
-              </Link>
+            <div className="mt-6 flex items-center gap-3">
+              <SocialLink href="#" label="Instagram" />
+              <SocialLink href="#" label="Facebook" />
+              <SocialLink href="#" label="Twitter" />
+              <SocialLink href="#" label="Pinterest" />
             </div>
           </div>
 
           {Object.values(footerLinks).map((section) => (
             <div key={section.title}>
-              <h3 className="mb-3 text-sm font-semibold">{section.title}</h3>
-              <ul className="space-y-2">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+                {section.title}
+              </h3>
+              <ul className="mt-4 space-y-3">
                 {section.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     >
                       {link.label}
                     </Link>
@@ -79,19 +74,36 @@ export default function Footer() {
               </ul>
             </div>
           ))}
+
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground/80">
+              Newsletter
+            </h3>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Subscribe for exclusive offers and new arrivals.
+            </p>
+            <form className="mt-4 flex gap-2">
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90"
+              >
+                Join
+              </button>
+            </form>
+          </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row">
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:gap-4">
-            <span className="flex items-center gap-1">
-              <Mail className="h-3.5 w-3.5" /> hello@luxeaccessories.com
-            </span>
-            <span className="flex items-center gap-1">
-              <Phone className="h-3.5 w-3.5" /> +1 (555) 123-4567
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" /> New York, NY
-            </span>
+        <div className="mt-12 flex flex-col items-center justify-between gap-6 border-t pt-8 sm:flex-row">
+          <div className="flex items-center gap-4">
+            <PaymentIcon label="Visa" />
+            <PaymentIcon label="Mastercard" />
+            <PaymentIcon label="PayPal" />
+            <PaymentIcon label="Amex" />
           </div>
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Luxe Accessories. All rights reserved.
@@ -99,5 +111,25 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function SocialLink({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-200 hover:border-foreground hover:text-foreground"
+    >
+      <span className="text-xs font-medium">{label[0]}</span>
+    </a>
+  );
+}
+
+function PaymentIcon({ label }: { label: string }) {
+  return (
+    <div className="flex h-7 items-center rounded border border-border bg-background px-2 text-[10px] font-medium text-muted-foreground">
+      {label}
+    </div>
   );
 }

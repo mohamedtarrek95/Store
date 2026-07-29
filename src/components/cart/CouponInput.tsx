@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/providers/CartProvider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tag, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Tag, X, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function CouponInput() {
@@ -52,38 +49,45 @@ export function CouponInput() {
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between rounded-lg border bg-primary/5 p-3">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
+      <div className="flex items-center justify-between rounded-2xl border bg-emerald-50/50 p-4">
+        <div className="flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
           <div>
             <p className="text-sm font-medium">{coupon.code}</p>
             <p className="text-xs text-muted-foreground">{coupon.discountPercentage}% discount applied</p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleRemove}>
-          <X className="h-3.5 w-3.5" />
-        </Button>
+        <button
+          onClick={handleRemove}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <label className="text-sm font-medium">Coupon Code</label>
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+          <Tag className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
             type="text"
             placeholder="Enter coupon code"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="pl-10"
+            className="h-11 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background transition-all focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <Button variant="outline" onClick={handleApply} disabled={loading || !code.trim()}>
-          {loading ? 'Checking...' : 'Apply'}
-        </Button>
+        <button
+          onClick={handleApply}
+          disabled={loading || !code.trim()}
+          className="inline-flex h-11 items-center justify-center rounded-xl border border-input px-5 text-sm font-medium transition-all duration-200 hover:bg-accent disabled:opacity-50"
+        >
+          {loading ? '...' : 'Apply'}
+        </button>
       </div>
     </div>
   );

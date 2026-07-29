@@ -4,11 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/providers/CartProvider';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { checkoutSchema } from '@/lib/validations';
 import { formatPrice } from '@/lib/utils';
 import Link from 'next/link';
@@ -122,12 +117,12 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-24">
         <ShoppingBag className="h-16 w-16 text-muted-foreground/40" />
-        <h2 className="mt-4 text-2xl font-bold">Your cart is empty</h2>
-        <Button asChild className="mt-4">
-          <Link href="/products">Shop Now</Link>
-        </Button>
+        <h2 className="mt-4 font-[family-name:var(--font-heading)] text-3xl font-bold">Your cart is empty</h2>
+        <Link href="/products" className="mt-6 inline-flex h-12 items-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all hover:opacity-90">
+          Shop Now
+        </Link>
       </div>
     );
   }
@@ -135,72 +130,72 @@ export default function CheckoutPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <Button variant="ghost" asChild>
-          <Link href="/cart">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Cart
-          </Link>
-        </Button>
+        <Link href="/cart" className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Cart
+        </Link>
       </div>
 
-      <h1 className="mb-8 text-3xl font-bold tracking-tight">Checkout</h1>
+      <h1 className="mb-8 font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight sm:text-4xl">
+        Checkout
+      </h1>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-8">
-            <div className="rounded-lg border p-6">
-              <h2 className="mb-4 text-lg font-semibold">Shipping Address</h2>
+          <div className="space-y-8 lg:col-span-2">
+            <div className="rounded-2xl border p-6">
+              <h2 className="mb-5 text-lg font-semibold">Shipping Address</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input id="fullName" value={formData.fullName} onChange={handleChange} />
+                  <label htmlFor="fullName" className="text-sm font-medium">Full Name</label>
+                  <input id="fullName" value={formData.fullName} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.fullName && <p className="mt-1 text-xs text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={formData.email} onChange={handleChange} />
+                  <label htmlFor="email" className="text-sm font-medium">Email</label>
+                  <input id="email" type="email" value={formData.email} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.email && <p className="mt-1 text-xs text-destructive">{errors.email}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" value={formData.phone} onChange={handleChange} />
+                  <label htmlFor="phone" className="text-sm font-medium">Phone</label>
+                  <input id="phone" type="tel" value={formData.phone} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.phone && <p className="mt-1 text-xs text-destructive">{errors.phone}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" value={formData.address} onChange={handleChange} />
+                  <label htmlFor="address" className="text-sm font-medium">Address</label>
+                  <input id="address" value={formData.address} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.address && <p className="mt-1 text-xs text-destructive">{errors.address}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" value={formData.city} onChange={handleChange} />
+                  <label htmlFor="city" className="text-sm font-medium">City</label>
+                  <input id="city" value={formData.city} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.city && <p className="mt-1 text-xs text-destructive">{errors.city}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="state">State</Label>
-                  <Input id="state" value={formData.state} onChange={handleChange} />
+                  <label htmlFor="state" className="text-sm font-medium">State</label>
+                  <input id="state" value={formData.state} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.state && <p className="mt-1 text-xs text-destructive">{errors.state}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="zip">ZIP Code</Label>
-                  <Input id="zip" value={formData.zip} onChange={handleChange} />
+                  <label htmlFor="zip" className="text-sm font-medium">ZIP Code</label>
+                  <input id="zip" value={formData.zip} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.zip && <p className="mt-1 text-xs text-destructive">{errors.zip}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="country">Country</Label>
-                  <Input id="country" value={formData.country} onChange={handleChange} />
+                  <label htmlFor="country" className="text-sm font-medium">Country</label>
+                  <input id="country" value={formData.country} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   {errors.country && <p className="mt-1 text-xs text-destructive">{errors.country}</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Label htmlFor="notes">Order Notes (Optional)</Label>
-                  <Textarea id="notes" value={formData.notes} onChange={handleChange} placeholder="Special instructions..." />
+                  <label htmlFor="notes" className="text-sm font-medium">Order Notes (Optional)</label>
+                  <textarea id="notes" value={formData.notes} onChange={handleChange} placeholder="Special instructions..." rows={3} className="mt-1.5 flex w-full rounded-xl border border-input bg-background px-4 py-3 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring resize-none" />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border p-6">
+            <div className="rounded-2xl border p-6">
               <h2 className="mb-4 text-lg font-semibold">Payment Method</h2>
-              <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
+              <div className="flex items-center gap-4 rounded-2xl bg-muted/30 p-5 border">
                 <CreditCard className="h-6 w-6 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Cash on Delivery (COD)</p>
@@ -211,12 +206,12 @@ export default function CheckoutPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-lg border p-6">
+            <div className="rounded-2xl border p-6">
               <h2 className="mb-4 text-lg font-semibold">Order Summary</h2>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {items.map((item) => (
                   <div key={`${item.productId}-${item.color}-${item.size}`} className="flex gap-3">
-                    <img src={item.image || '/placeholder.svg'} alt={item.name} className="h-14 w-14 rounded-md object-cover" />
+                    <img src={item.image || '/placeholder.svg'} alt={item.name} className="h-14 w-14 flex-shrink-0 rounded-xl object-cover bg-muted" />
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-sm font-medium">{item.name}</p>
                       <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
@@ -226,35 +221,35 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <Separator className="my-4" />
+              <div className="my-4 h-px bg-border" />
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between text-emerald-600">
                     <span>Discount ({coupon?.code})</span>
-                    <span>-{formatPrice(discount)}</span>
+                    <span className="font-medium">-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
+                  <span className="font-medium">{shipping === 0 ? <span className="text-emerald-600">Free</span> : formatPrice(shipping)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax</span>
-                  <span>{formatPrice(tax)}</span>
+                  <span className="font-medium">{formatPrice(tax)}</span>
                 </div>
-                <Separator />
+                <div className="h-px bg-border" />
                 <div className="flex justify-between text-base font-semibold">
                   <span>Total</span>
                   <span>{formatPrice(total)}</span>
                 </div>
               </div>
 
-              <div className="mt-4 space-y-2 rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">
+              <div className="mt-4 space-y-2 rounded-2xl bg-muted/30 p-4 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Truck className="h-3.5 w-3.5" />
                   <span>Free shipping on orders over $100</span>
@@ -266,9 +261,13 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full h-12 text-base" disabled={submitting}>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-4 text-base font-medium text-background transition-all duration-200 hover:opacity-90 disabled:opacity-50 shadow-sm"
+            >
               {submitting ? 'Placing Order...' : `Place Order - ${formatPrice(total)}`}
-            </Button>
+            </button>
           </div>
         </div>
       </form>

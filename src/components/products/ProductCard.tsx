@@ -6,9 +6,6 @@ import Link from 'next/link';
 import { ProductType } from '@/types';
 import { useCart } from '@/providers/CartProvider';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice, getDiscountPercentage } from '@/lib/utils';
@@ -42,7 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
       stock: product.stock,
     });
     toast.success(`${product.name} added to cart`);
-    setAdding(false);
+    setTimeout(() => setAdding(false), 500);
   };
 
   const handleWishlist = async (e: React.MouseEvent) => {
@@ -69,59 +66,70 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
       className="group relative"
     >
       <Link href={`/products/${product.slug}`} className="block">
-        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-          {!imgLoaded && <Skeleton className="absolute inset-0" />}
+        <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 group-hover:shadow-xl">
+          {!imgLoaded && (
+            <div className="absolute inset-0 animate-pulse bg-muted" />
+          )}
           <img
             src={product.featuredImage || product.images?.[0] || '/placeholder.svg'}
             alt={product.name}
             onLoad={() => setImgLoaded(true)}
-            className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-105 ${
+              imgLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
           />
 
           {discount > 0 && (
-            <Badge variant="destructive" className="absolute left-2 top-2">
+            <div className="absolute left-3 top-3 rounded-full bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground shadow-lg">
               -{discount}%
-            </Badge>
+            </div>
           )}
 
           {product.stock <= 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-              <span className="rounded-full bg-background px-3 py-1 text-sm font-medium">Out of Stock</span>
+            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+              <span className="rounded-full bg-background/90 px-4 py-1.5 text-sm font-medium shadow-sm">
+                Out of Stock
+              </span>
             </div>
           )}
 
           <button
             onClick={handleWishlist}
-            className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 opacity-0 shadow-sm backdrop-blur-sm transition-all hover:bg-background group-hover:opacity-100"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-background/80 opacity-0 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-background group-hover:opacity-100"
           >
             <Heart
-              className={`h-4 w-4 ${isWishlisted ? 'fill-red-500 text-red-500' : ''}`}
+              className={`h-4 w-4 transition-colors ${
+                isWishlisted ? 'fill-red-500 text-red-500' : ''
+              }`}
             />
           </button>
 
           {product.stock > 0 && (
-            <div className="absolute bottom-2 left-2 right-2 opacity-0 transition-all group-hover:opacity-100">
-              <Button
-                size="sm"
-                className="w-full shadow-lg"
+            <div className="absolute bottom-3 left-3 right-3 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+              <button
                 onClick={handleAddToCart}
                 disabled={adding}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground py-3 text-sm font-medium text-background shadow-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50"
               >
-                <ShoppingBag className="mr-1.5 h-4 w-4" />
+                <ShoppingBag className="h-4 w-4" />
                 {adding ? 'Adding...' : 'Quick Add'}
-              </Button>
+              </button>
             </div>
           )}
         </div>
 
-        <div className="mt-3 space-y-1">
-          <p className="text-xs text-muted-foreground">{product.brand}</p>
-          <h3 className="truncate text-sm font-medium">{product.name}</h3>
+        <div className="mt-4 space-y-2 px-1">
+          {product.brand && (
+            <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+              {product.brand}
+            </p>
+          )}
+          <h3 className="line-clamp-2 text-sm font-medium leading-snug">{product.name}</h3>
 
           <div className="flex items-center gap-1">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -130,7 +138,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 className={`h-3.5 w-3.5 ${
                   i < Math.round(product.rating)
                     ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-muted-foreground/30'
+                    : 'text-muted-foreground/20'
                 }`}
               />
             ))}
@@ -140,20 +148,22 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center gap-2">
             {product.discountPrice ? (
               <>
-                <span className="font-semibold">{formatPrice(product.discountPrice)}</span>
-                <span className="text-sm text-muted-foreground line-through">{formatPrice(product.price)}</span>
+                <span className="text-base font-semibold">{formatPrice(product.discountPrice)}</span>
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.price)}
+                </span>
               </>
             ) : (
-              <span className="font-semibold">{formatPrice(product.price)}</span>
+              <span className="text-base font-semibold">{formatPrice(product.price)}</span>
             )}
           </div>
 
           {product.colors && product.colors.length > 0 && (
-            <div className="flex items-center gap-1 pt-1">
+            <div className="flex items-center gap-1.5 pt-1">
               {product.colors.slice(0, 4).map((color) => (
                 <span
                   key={color}
-                  className="h-3.5 w-3.5 rounded-full border"
+                  className="h-3 w-3 rounded-full border border-border"
                   style={{ backgroundColor: color.toLowerCase() }}
                   title={color}
                 />

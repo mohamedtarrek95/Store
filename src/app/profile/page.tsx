@@ -2,20 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 import { profileSchema } from '@/lib/validations';
 import { User, Mail, Phone, MapPin, Save, Package, Heart } from 'lucide-react';
 import { toast } from 'sonner';
-import Link from 'next/link';
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -87,12 +80,14 @@ export default function ProfilePage() {
 
   if (!session) {
     return (
-      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-20">
-        <User className="h-16 w-16 text-muted-foreground/40" />
-        <h2 className="mt-4 text-2xl font-bold">Sign in to manage your profile</h2>
-        <Button asChild className="mt-6">
-          <Link href="/login">Sign In</Link>
-        </Button>
+      <div className="container mx-auto flex flex-col items-center justify-center px-4 py-24">
+        <div className="rounded-full bg-muted p-8">
+          <User className="h-16 w-16 text-muted-foreground/40" />
+        </div>
+        <h2 className="mt-4 font-[family-name:var(--font-heading)] text-3xl font-bold">Sign in to manage your profile</h2>
+        <Link href="/login" className="mt-8 inline-flex h-12 items-center rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all hover:opacity-90">
+          Sign In
+        </Link>
       </div>
     );
   }
@@ -100,106 +95,111 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">My Profile</h1>
+        <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight sm:text-4xl">
+          My Profile
+        </h1>
         <p className="mt-1 text-muted-foreground">Manage your account information</p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Update your name and contact details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="email" className="text-muted-foreground">Email</Label>
-                    <div className="mt-1 flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2.5 text-sm">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                      <span>{session.user?.email}</span>
-                    </div>
-                  </div>
+          <div className="rounded-2xl border p-6 sm:p-8">
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold">Personal Information</h2>
+              <p className="text-sm text-muted-foreground">Update your name and contact details</p>
+            </div>
 
-                  <div>
-                    <Label htmlFor="name">Full Name</Label>
-                    <div className="relative mt-1">
-                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input id="name" value={formData.name} onChange={handleChange} className="pl-10" />
-                    </div>
-                    {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <div className="relative mt-1">
-                      <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input id="phone" type="tel" value={formData.phone} onChange={handleChange} className="pl-10" />
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                  <div className="mt-1.5 flex items-center gap-2 rounded-xl border bg-muted/30 px-4 py-3 text-sm">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span>{session.user?.email}</span>
                   </div>
                 </div>
-
-                <Separator />
 
                 <div>
-                  <h3 className="mb-4 text-sm font-semibold">Shipping Address</h3>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
-                      <Label htmlFor="address">Address</Label>
-                      <div className="relative mt-1">
-                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input id="address" value={formData.address} onChange={handleChange} className="pl-10" />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" value={formData.city} onChange={handleChange} className="mt-1" />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" value={formData.state} onChange={handleChange} className="mt-1" />
-                    </div>
-                    <div>
-                      <Label htmlFor="zip">ZIP Code</Label>
-                      <Input id="zip" value={formData.zip} onChange={handleChange} className="mt-1" />
-                    </div>
-                    <div>
-                      <Label htmlFor="country">Country</Label>
-                      <Input id="country" value={formData.country} onChange={handleChange} className="mt-1" />
-                    </div>
+                  <label htmlFor="name" className="text-sm font-medium">Full Name</label>
+                  <div className="relative mt-1.5">
+                    <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input id="name" value={formData.name} onChange={handleChange} className="flex h-11 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
                   </div>
+                  {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
                 </div>
 
-                <Button type="submit" disabled={loading} className="h-11">
-                  <Save className="mr-2 h-4 w-4" />
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                <div>
+                  <label htmlFor="phone" className="text-sm font-medium">Phone</label>
+                  <div className="relative mt-1.5">
+                    <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input id="phone" type="tel" value={formData.phone} onChange={handleChange} className="flex h-11 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              <div>
+                <h3 className="mb-4 text-sm font-semibold">Shipping Address</h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label htmlFor="address" className="text-sm font-medium">Address</label>
+                    <div className="relative mt-1.5">
+                      <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <input id="address" value={formData.address} onChange={handleChange} className="flex h-11 w-full rounded-xl border border-input bg-background pl-11 pr-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="city" className="text-sm font-medium">City</label>
+                    <input id="city" value={formData.city} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                  </div>
+                  <div>
+                    <label htmlFor="state" className="text-sm font-medium">State</label>
+                    <input id="state" value={formData.state} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                  </div>
+                  <div>
+                    <label htmlFor="zip" className="text-sm font-medium">ZIP Code</label>
+                    <input id="zip" value={formData.zip} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                  </div>
+                  <div>
+                    <label htmlFor="country" className="text-sm font-medium">Country</label>
+                    <input id="country" value={formData.country} onChange={handleChange} className="mt-1.5 flex h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring" />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-foreground px-8 text-sm font-medium text-background transition-all duration-200 hover:opacity-90 disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" />
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </form>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/orders">
-                  <Package className="mr-2 h-4 w-4" />
-                  My Orders
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <Link href="/wishlist">
-                  <Heart className="mr-2 h-4 w-4" />
-                  Wishlist
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="space-y-4">
+          <div className="rounded-2xl border p-6">
+            <h2 className="mb-4 text-sm font-semibold">Account</h2>
+            <div className="space-y-2">
+              <Link
+                href="/orders"
+                className="flex items-center gap-3 rounded-xl border border-input px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                <Package className="h-4 w-4 text-muted-foreground" />
+                My Orders
+              </Link>
+              <Link
+                href="/wishlist"
+                className="flex items-center gap-3 rounded-xl border border-input px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                <Heart className="h-4 w-4 text-muted-foreground" />
+                Wishlist
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
