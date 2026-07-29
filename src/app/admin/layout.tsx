@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import AuthGuard from '@/components/admin/AuthGuard';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
 
@@ -34,12 +35,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <AdminSidebar />
-      <div className="lg:pl-72">
-        <AdminHeader />
-        <main className="p-6">{children}</main>
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <AdminSidebar />
+        <div className="lg:pl-72">
+          <AdminHeader />
+          <main className="p-6">{children}</main>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

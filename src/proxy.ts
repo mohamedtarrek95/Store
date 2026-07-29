@@ -2,12 +2,26 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
+const EXPECTED_COOKIE_NAME = 'authjs.session-token';
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith('/admin')) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const rawCookie = req.headers.get('cookie') || '';
+    const hasCookie = rawCookie.includes(EXPECTED_COOKIE_NAME);
+    const allCookieNames = rawCookie.split(';').map(c => c.split('=')[0]?.trim()).filter(Boolean);
+
+    const token = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: false,
+      cookieName: EXPECTED_COOKIE_NAME,
+    });
+
     console.log('[PROXY] pathname:', pathname);
+    console.log('[PROXY] has authjs.session-token cookie:', hasCookie);
+    console.log('[PROXY] all cookie names:', allCookieNames);
     console.log('[PROXY] token found:', !!token);
     if (token) {
       console.log('[PROXY] token.isAdmin:', token.isAdmin);
