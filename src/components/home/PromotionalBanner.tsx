@@ -38,7 +38,7 @@ function TimerBlock({ value, label }: { value: number; label: string }) {
 }
 
 export default function PromotionalBanner() {
-  const targetDate = new Date(Date.now() + 7 * 86400000);
+  const [targetDate] = useState(() => new Date(Date.now() + 7 * 86400000));
   const countdown = useCountdown(targetDate);
 
   return (
