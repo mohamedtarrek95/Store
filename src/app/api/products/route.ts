@@ -62,7 +62,11 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+    console.error('GET /api/products error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch products' },
+      { status: 500 }
+    );
   }
 }
 
@@ -87,6 +91,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+    console.error('POST /api/products error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create product' },
+      { status: 500 }
+    );
   }
 }

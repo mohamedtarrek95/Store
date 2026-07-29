@@ -18,7 +18,7 @@ if (!cached) {
 function getMongoUri(): string {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    throw new Error('Please define the MONGODB_URI environment variable');
+    throw new Error('MONGODB_URI environment variable is not defined. Set it in Vercel Dashboard > Project > Settings > Environment Variables.');
   }
   return uri;
 }
@@ -31,9 +31,12 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 30000,
     };
 
     cached.promise = mongoose.connect(getMongoUri(), opts).then((mongoose) => {
+      console.log('MongoDB connected successfully');
       return mongoose;
     });
   }
@@ -42,6 +45,7 @@ async function dbConnect() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    console.error('MongoDB connection error:', e);
     throw e;
   }
 

@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
       code: coupon.code,
     });
   } catch (error) {
-    return NextResponse.json({ valid: false, message: 'Failed to validate coupon' });
+    console.error('POST /api/coupons/validate error:', error);
+    return NextResponse.json(
+      { valid: false, message: error instanceof Error ? error.message : 'Failed to validate coupon' }
+    );
   }
 }

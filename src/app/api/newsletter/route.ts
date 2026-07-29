@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
     await Newsletter.create({ email });
     return NextResponse.json({ message: 'Subscribed successfully' }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 });
+    console.error('POST /api/newsletter error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to subscribe' },
+      { status: 500 }
+    );
   }
 }

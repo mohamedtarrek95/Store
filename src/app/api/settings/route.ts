@@ -12,7 +12,11 @@ export async function GET() {
     }
     return NextResponse.json(settings);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+    console.error('GET /api/settings error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch settings' },
+      { status: 500 }
+    );
   }
 }
 
@@ -50,6 +54,10 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(settings);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+    console.error('PUT /api/settings error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update settings' },
+      { status: 500 }
+    );
   }
 }

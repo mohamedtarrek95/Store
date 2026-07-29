@@ -13,7 +13,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     return NextResponse.json(product);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
+    console.error('GET /api/products/[id] error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch product' },
+      { status: 500 }
+    );
   }
 }
 
@@ -44,7 +48,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     return NextResponse.json(product);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
+    console.error('PUT /api/products/[id] error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update product' },
+      { status: 500 }
+    );
   }
 }
 
@@ -63,6 +71,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     }
     return NextResponse.json({ message: 'Product deleted' });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
+    console.error('DELETE /api/products/[id] error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete product' },
+      { status: 500 }
+    );
   }
 }

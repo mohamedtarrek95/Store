@@ -13,31 +13,36 @@ const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password required');
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error('Email and password required');
+          }
+
+          await dbConnect();
+
+          const user = await User.findOne({ email: credentials.email });
+
+          if (!user) {
+            throw new Error('Invalid email or password');
+          }
+
+          const isPassword = await bcrypt.compare(credentials.password as string, user.password);
+
+          if (!isPassword) {
+            throw new Error('Invalid email or password');
+          }
+
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            isAdmin: user.isAdmin,
+          };
+        } catch (error) {
+          console.error('Auth authorize error:', error);
+          throw error;
         }
-
-        await dbConnect();
-
-        const user = await User.findOne({ email: credentials.email });
-
-        if (!user) {
-          throw new Error('Invalid email or password');
-        }
-
-        const isPassword = await bcrypt.compare(credentials.password as string, user.password);
-
-        if (!isPassword) {
-          throw new Error('Invalid email or password');
-        }
-
-        return {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          isAdmin: user.isAdmin,
-        };
       },
     }),
   ],
@@ -50,11 +55,16 @@ const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).isAdmin = token.isAdmin;
-        (session.user as any).id = token.id;
+      try {
+        if (session.user) {
+          (session.user as any).isAdmin = token.isAdmin;
+          (session.user as any).id = token.id;
+        }
+        return session;
+      } catch (error) {
+        console.error('Session callback error:', error);
+        return session;
       }
-      return session;
     },
   },
   pages: {

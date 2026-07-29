@@ -24,7 +24,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(order);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
+    console.error('GET /api/orders/[id] error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch order' },
+      { status: 500 }
+    );
   }
 }
 
@@ -46,6 +50,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(order);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+    console.error('PUT /api/orders/[id] error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update order' },
+      { status: 500 }
+    );
   }
 }

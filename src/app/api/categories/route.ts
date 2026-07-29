@@ -9,7 +9,11 @@ export async function GET() {
     const categories = await Category.find().sort({ name: 1 });
     return NextResponse.json(categories);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
+    console.error('GET /api/categories error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch categories' },
+      { status: 500 }
+    );
   }
 }
 
@@ -27,7 +31,11 @@ export async function POST(req: NextRequest) {
     const category = await Category.create({ ...body, slug });
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+    console.error('POST /api/categories error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create category' },
+      { status: 500 }
+    );
   }
 }
 
@@ -52,7 +60,11 @@ export async function PUT(req: NextRequest) {
     }
     return NextResponse.json(category);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update category' }, { status: 500 });
+    console.error('PUT /api/categories error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update category' },
+      { status: 500 }
+    );
   }
 }
 
@@ -73,6 +85,10 @@ export async function DELETE(req: NextRequest) {
     await Category.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Category deleted' });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });
+    console.error('DELETE /api/categories error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete category' },
+      { status: 500 }
+    );
   }
 }

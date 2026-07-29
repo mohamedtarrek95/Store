@@ -18,7 +18,11 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ products: user.wishlist || [] });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch wishlist' }, { status: 500 });
+    console.error('GET /api/wishlist error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch wishlist' },
+      { status: 500 }
+    );
   }
 }
 
@@ -49,6 +53,10 @@ export async function POST(req: NextRequest) {
     await user.save();
     return NextResponse.json({ wishlist: user.wishlist });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update wishlist' }, { status: 500 });
+    console.error('POST /api/wishlist error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update wishlist' },
+      { status: 500 }
+    );
   }
 }

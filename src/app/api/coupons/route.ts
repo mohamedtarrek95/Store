@@ -9,7 +9,11 @@ export async function GET() {
     const coupons = await Coupon.find().sort({ createdAt: -1 });
     return NextResponse.json(coupons);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 });
+    console.error('GET /api/coupons error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch coupons' },
+      { status: 500 }
+    );
   }
 }
 
@@ -31,7 +35,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(coupon, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create coupon' }, { status: 500 });
+    console.error('POST /api/coupons error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create coupon' },
+      { status: 500 }
+    );
   }
 }
 
@@ -55,7 +63,11 @@ export async function PUT(req: NextRequest) {
     }
     return NextResponse.json(coupon);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update coupon' }, { status: 500 });
+    console.error('PUT /api/coupons error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update coupon' },
+      { status: 500 }
+    );
   }
 }
 
@@ -76,6 +88,10 @@ export async function DELETE(req: NextRequest) {
     await Coupon.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Coupon deleted' });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete coupon' }, { status: 500 });
+    console.error('DELETE /api/coupons error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete coupon' },
+      { status: 500 }
+    );
   }
 }

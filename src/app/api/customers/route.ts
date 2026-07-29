@@ -42,7 +42,11 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(customersWithOrders);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });
+    console.error('GET /api/customers error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch customers' },
+      { status: 500 }
+    );
   }
 }
 
@@ -63,6 +67,10 @@ export async function DELETE(req: NextRequest) {
     await User.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Customer deleted' });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete customer' }, { status: 500 });
+    console.error('DELETE /api/customers error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to delete customer' },
+      { status: 500 }
+    );
   }
 }

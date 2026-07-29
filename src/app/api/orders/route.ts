@@ -42,7 +42,11 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(orders);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+    console.error('GET /api/orders error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch orders' },
+      { status: 500 }
+    );
   }
 }
 
@@ -117,6 +121,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    console.error('POST /api/orders error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create order' },
+      { status: 500 }
+    );
   }
 }

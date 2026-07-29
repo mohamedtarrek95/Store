@@ -19,7 +19,11 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(reviews);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 });
+    console.error('GET /api/reviews error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch reviews' },
+      { status: 500 }
+    );
   }
 }
 
@@ -57,6 +61,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(populated, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
+    console.error('POST /api/reviews error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create review' },
+      { status: 500 }
+    );
   }
 }
